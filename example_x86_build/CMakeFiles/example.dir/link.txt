@@ -1,0 +1,1 @@
+/usr/bin/cc  -O3 -ffunction-sections -fdata-sections -DNDEBUG -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast  -static CMakeFiles/example.dir/example.c.o  -o example -rdynamic -Wl,--gc-sections libssp_lib.a -Wl,--gc-sections 

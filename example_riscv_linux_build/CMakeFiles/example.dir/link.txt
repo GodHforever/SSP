@@ -1,0 +1,1 @@
+/iothome/hao.gao/package/toolchain_linux/Xuantie-900-gcc-linux-5.10.4-glibc-x86_64-V2.6.1/bin/riscv64-unknown-linux-gnu-gcc  -O3 -ffunction-sections -fdata-sections -DNDEBUG -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast  -static CMakeFiles/example.dir/example.c.o  -o example -rdynamic -Wl,--gc-sections libssp_lib.a -Wl,--gc-sections 
