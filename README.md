@@ -6,6 +6,7 @@ This is repo for some ssp alg demo.
 qemu-riscv64 -cpu c906fdv main /iothome/zhaoxy/code/asr_sdk/build/guanbichuanglian.wav
 
 qemu-riscv64 -cpu c906fdv main guanbichuanglian.wav 
+qemu-riscv64 -cpu c906fdv example -i ../input.raw ../input2.raw -r ../ref.raw ../ref2.raw -o ../out.pcm
 
 ```
 #### 调试

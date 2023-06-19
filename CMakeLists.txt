@@ -64,9 +64,9 @@ SET(CMAKE_EXE_LINKER_FLAGS "-static")
 add_executable(example ${CMAKE_CURRENT_LIST_DIR}/example.c)
 target_link_libraries(example PUBLIC ${LIB_NAME})
 target_include_directories(example PUBLIC
-  ${CMAKE_CURRENT_LIST_DIR}/include
-  ${CMAKE_CURRENT_LIST_DIR}/mini_log
-  ${CMAKE_CURRENT_LIST_DIR}/kernels
+  # ${CMAKE_CURRENT_LIST_DIR}/include
+  ${CMAKE_CURRENT_LIST_DIR}/src_demo/aec/src
+  # ${CMAKE_CURRENT_LIST_DIR}/kernels
 )
 if(SET_DEBUG)
   set_target_properties(example PROPERTIES COMPILE_FLAGS -g)

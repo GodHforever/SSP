@@ -27,7 +27,7 @@ void* dios_ssp_init_api(int delay)
     
     // params init
     srv->cfg_frame_len = 128;
-    srv->cfg_mic_num = 1;
+    srv->cfg_mic_num = 2;
     srv->cfg_ref_num = 1;
 
     // aec init
@@ -75,7 +75,7 @@ int dios_ssp_process_api(void* ptr, short* mic_buf, short* ref_buf, short* out_b
     objAEC* srv = (objAEC*)ptr;
     int ret;
     int i, j;
-   
+   // 输入的mic_buf 和ref_buf 都是非交织的 a1 a2 a3 b1 b2 b3....
     // get input and reference data
     for(i = 0; i < srv->cfg_mic_num; i++)
     {
@@ -98,13 +98,23 @@ int dios_ssp_process_api(void* ptr, short* mic_buf, short* ref_buf, short* out_b
     {
         return -1;
     }
-
+    // 此处存储多通道结果是不是srv->ptr_mic_buf[0] [128] 
     // save output
     memcpy(srv->ptr_data_buf, &srv->ptr_mic_buf[0], srv->cfg_frame_len * sizeof(float));
     for(j = 0; j < srv->cfg_frame_len; j++)
     {
-        out_buf[j] = (short)(srv->ptr_data_buf[j]);
+        out_buf[j * srv->cfg_mic_num] = (short)(srv->ptr_data_buf[j]);
     }
+    memcpy(srv->ptr_data_buf, &srv->ptr_mic_buf[srv->cfg_frame_len], srv->cfg_frame_len * sizeof(float));
+    for(j = 0; j < srv->cfg_frame_len; j++)
+    {
+        out_buf[j * srv->cfg_mic_num + 1] = (short)(srv->ptr_data_buf[j]);
+    }
+    // for(j = 0; j < srv->cfg_frame_len; j++)
+    // {
+    //     if((short)(srv->ptr_mic_buf[srv->cfg_frame_len + j]) != (short)srv->ptr_mic_buf[0 + j])
+    //         printf("channel 2 err\n");
+    // }
 
     return 0;
 }

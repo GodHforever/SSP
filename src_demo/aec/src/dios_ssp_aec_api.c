@@ -241,8 +241,11 @@ int dios_ssp_aec_process_api(void* ptr, float* io_buf, float* ref_buf, int* dt_s
 	memcpy(srv->ref_tde, ref_buf, srv->ref_num * srv->frm_len * sizeof(float));
 
 	/* fixed delay process */
+	// 当前帧的数据加入到ref_buffer末尾，进行时延对齐
 	memcpy(srv->ref_buffer + srv->ref_num * srv->ref_buffer_len, srv->ref_tde, srv->ref_num * srv->frm_len * sizeof(float));
+	// 从ref_buffer里复制时延对齐之后的数据到ref_tde中
 	memcpy(srv->ref_tde, srv->ref_buffer, srv->ref_num * srv->frm_len * sizeof(float));
+	// 去掉被复制走的数据
 	memmove(srv->ref_buffer, srv->ref_buffer + srv->ref_num * srv->frm_len, srv->ref_num * srv->ref_buffer_len * sizeof(float));
 	memset(srv->ref_buffer + srv->ref_num * srv->ref_buffer_len, 0, srv->ref_num * srv->frm_len * sizeof(float));
 	
