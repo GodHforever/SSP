@@ -202,11 +202,14 @@ int dios_ssp_share_subband_reset(objSubBand* srv)
 int dios_ssp_share_subband_analyse(objSubBand* srv, float* in_buf, xcomplex* out_buf)
 {
     int i, j;
+	// srv->p_in[0]=640  将这一帧数据翻转，存在一帧相应的位置
+	// 一帧128个采样点，一个sub_block是2帧 256个采样点，N取256 窗长取 256*3 = 768
     for (i = srv->frm_len - 1; i >= 0; i--)
     {
 		srv->ana_xin[i + srv->p_in[0]] = (in_buf[srv->frm_len - i - 1]);
     }
     float r0 = 0.0;
+	// 把3个256block合并成一个256block存在ana_xout,这里的这个ana_xout的大小初始化时768 大了
     for (i = 0; i < AEC_FFT_LEN; i++) 
     {
 		r0 = 0.0;

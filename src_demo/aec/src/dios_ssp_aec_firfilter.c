@@ -217,8 +217,21 @@ int aec_channel_to_band(int **band_table, int ch)
 void nlms_complex(int ch, objFirFilter *srv, int i_ref)
 {
     // please finish your code here
-    
-    // end NLMS
+	// 滤波器误差已经计算得到，是srv->err_adf[ch]，实际上就是该滤波器就是跟踪线性回声，也就是ref
+	xcomplex xhx = complex_conv(srv->num_main_subband_adf[ch], srv->stack_sigIn_adf[i_ref][ch], srv->stack_sigIn_adf[i_ref][ch]);
+	float module_xhx = xhx.r;
+	// 2u x(n)/xhx e*(n)
+	xcomplex *delta = calloc(srv->num_main_subband_adf[ch], sizeof(xcomplex));
+	for (int i = 0; i < srv->num_main_subband_adf[ch]; i ++) {
+		xcomplex tmp = complex_real_complex_mul(srv->weight[i], srv->stack_sigIn_adf[i_ref][ch][i]);
+		tmp = complex_mul(tmp, complex_conjg(srv->err_adf[ch]));
+		delta[i] = complex_real_complex_mul(2.0 / module_xhx, tmp);
+	}
+	for (int i = 0; i < srv->num_main_subband_adf[ch]; i ++) {
+		srv->adf_coef[i_ref][ch][i] = complex_add(srv->adf_coef[i_ref][ch][i],  delta[i]);
+	}
+	free(delta);
+	// end NLMS
 }
 
 /**

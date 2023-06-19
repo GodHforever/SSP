@@ -1,2 +1,0 @@
-/usr/bin/ar qc libssp_lib.a  CMakeFiles/SSP_LIB.dir/src/test.c.o CMakeFiles/SSP_LIB.dir/mini_log/m_log.c.o
-/usr/bin/ranlib libssp_lib.a

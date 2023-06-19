@@ -47,10 +47,9 @@ LIST(APPEND HEADER_LIST ${HEADER_FILES})
 target_include_directories(${LIB_NAME} PUBLIC ${HEADER_LIST})
 
 #目标库需要链接的库，使用PUBLIC，如果有其他文件链接目标库，则该库也被链进去
-# target_link_libraries(${NAME} PUBLIC XXX -lm)
+target_link_libraries(${LIB_NAME} PUBLIC -lm)
 
 # 添加的宏后续可以通过命令行控制
-add_definitions(-DMAX_CHANNEL=3)
 
 if(SET_DEBUG)
   set_target_properties(${LIB_NAME} PROPERTIES COMPILE_FLAGS -g)
@@ -67,6 +66,7 @@ target_link_libraries(example PUBLIC ${LIB_NAME})
 target_include_directories(example PUBLIC
   ${CMAKE_CURRENT_LIST_DIR}/include
   ${CMAKE_CURRENT_LIST_DIR}/mini_log
+  ${CMAKE_CURRENT_LIST_DIR}/kernels
 )
 if(SET_DEBUG)
   set_target_properties(example PROPERTIES COMPILE_FLAGS -g)

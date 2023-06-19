@@ -17,6 +17,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "adapt_filt.h"
+extern double p[filter_length][filter_length];
+extern double k[filter_length];
 
 int main(int argc, char* argv[]) {
     if(argc != 3) {
@@ -43,9 +45,9 @@ int main(int argc, char* argv[]) {
     long inputdata_length = ftell(fpin);
     inputdata_length /= 2;
     rewind(fpin);
-    short* inputdata = new short[inputdata_length];
+    short* indata = new short[inputdata_length];
     short* outputdata = new short[inputdata_length];
-    fread(inputdata, sizeof(short), inputdata_length, fpin);
+    fread(indata, sizeof(short), inputdata_length, fpin);
 
     // initialize adaptive filter coefficients, by zeros
     double w[filter_length];
@@ -53,19 +55,35 @@ int main(int argc, char* argv[]) {
         w[i] = 0.0;
     }
 
-    // adaptive filtering sample by sample
-    for(int i = 0; i < inputdata_length; i++) {
-        adapt_filtering(inputdata[i], w, filter_length, &outputdata[i]);
+    // 对于rls算法需要初始化矩阵p
+    // rls算法有遗忘功能，初始时刻的影响应该尽可能小，所以delta取很小的正数
+    double delta = 0.001;
+    for (int i = 0; i < filter_length; i ++) {
+        for (int j = 0; j < filter_length; j ++) {
+            if(i == j)
+                p[i][j] = (double) (1.0 / delta);
+            else
+                p[i][j] = 0.0;
+        }
     }
 
-    // save output i.e. error signal
-    fwrite(outputdata, sizeof(short), inputdata_length, fpout);
+        // adaptive filtering sample by sample
+        for (int i = 0; i < inputdata_length; i++)
+        {
+            adapt_filtering_rls(indata[i], w, filter_length, &outputdata[i]);
+        }
+        for (int i = 0; i < filter_length; i  ++) {
+            printf("%f", w[i]);
+        }
+        printf("\n");
+        // save output i.e. error signal
+        fwrite(outputdata, sizeof(short), inputdata_length, fpout);
 
-    printf("%s done.\n", argv[1]);
-    delete [] inputdata;
-    delete [] outputdata;
-    fclose(fpin);
-    fclose(fpout);
-    return 0;
+        printf("%s done.\n", argv[1]);
+        delete[] indata;
+        delete[] outputdata;
+        fclose(fpin);
+        fclose(fpout);
+        return 0;
 }
 

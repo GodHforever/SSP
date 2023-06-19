@@ -12,7 +12,10 @@
 const int filter_length = 128;
 static double inputdata[filter_length];
 
-int adapt_filtering(short input, double* adapt_filter, int filter_length, short* err);
+
+int adapt_filtering_lms(short input, double* adapt_filter, int filter_length, short* err);
+int adapt_filtering_rls(short input, double* adapt_filter, int filter_length, short* err);
+
 
 #endif
 

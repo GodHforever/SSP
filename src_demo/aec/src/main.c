@@ -45,10 +45,10 @@ int main(int argc, char** argv)
     rewind(fpin);
     long frame_num = (file_len - array_frm_len * 128) / array_frm_len;
     int sample_res = (file_len - array_frm_len * 128) % array_frm_len;
-    printf("framenum: %ld and %d samples.\r\n", frame_num, sample_res);
+    printf("file_len:%d framenum: %ld and %d samples.\r\n", file_len, frame_num, sample_res);
     fpref = fopen(argv[2], "rb");
     fpout = fopen(argv[3], "wb");
-
+    // N = 128 也就是128帧，每帧128个采样点 
     // TDE Begin
     int delay = 0;
     short* ptr_input_for_tde = (short*)calloc(array_frm_len * 128, sizeof(short));
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
     fread(ptr_ref_for_tde, sizeof(short), array_frm_len * 128, fpref);
     delay = dios_ssp_tde(ptr_input_for_tde, ptr_ref_for_tde, array_frm_len * 128);
     // TDE End
-
+    printf("time delay is %d\n", delay);
     // AEC Begin
     void* st;
     st = dios_ssp_init_api(delay);

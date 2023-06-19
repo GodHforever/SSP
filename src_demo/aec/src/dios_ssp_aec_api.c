@@ -81,13 +81,16 @@ void* dios_ssp_aec_init_api(int mic_num, int ref_num, int frm_len, int delay)
 
 	for (i_mic = 0; i_mic < srv->mic_num; i_mic++)
 	{
+		// 存储mic时域输入信号
 		srv->input_mic_time[i_mic] = (float*)calloc(srv->frm_len, sizeof(float));
+		// 子带信号
 		srv->input_mic_subband[i_mic] = (xcomplex*)calloc(AEC_SUBBAND_NUM, sizeof(xcomplex));
 		srv->firfilter_out[i_mic] = (xcomplex*)calloc(AEC_SUBBAND_NUM, sizeof(xcomplex));
 		srv->final_out[i_mic] = (xcomplex*)calloc(AEC_SUBBAND_NUM, sizeof(xcomplex));
 		srv->est_echo[i_mic] = (xcomplex*)calloc(AEC_SUBBAND_NUM, sizeof(xcomplex));
 		
 		/* sub module init */
+		// 子带模块和fir模块针对每个Mic都有一个结构体
 		srv->st_subband_mic[i_mic] = dios_ssp_share_subband_init(srv->frm_len);
 		srv->st_firfilter[i_mic] = dios_ssp_aec_firfilter_init(srv->ref_num);
 
@@ -97,13 +100,16 @@ void* dios_ssp_aec_init_api(int mic_num, int ref_num, int frm_len, int delay)
 		srv->st_firfilter[i_mic]->band_table = srv->band_table;
 	}
 
+	// 给参考信号加上了时延估计，使用一个新buffer
 	srv->ref_buffer = (float*)calloc(srv->ref_num * (srv->ref_buffer_len + srv->frm_len), sizeof(float));
 	srv->ref_tde = (float*)calloc(srv->ref_num * srv->frm_len, sizeof(float));
 	srv->input_ref_subband = (xcomplex**)calloc(srv->ref_num, sizeof(xcomplex*));
 	srv->input_ref_time = (float**)calloc(srv->ref_num, sizeof(float*));
+	// 与st_subband_mic对应
 	srv->st_subband_ref = (objSubBand**)calloc(srv->ref_num, sizeof(objSubBand*));
 	for (i_ref = 0; i_ref < srv->ref_num; i_ref++)
 	{
+		// 与 input_mic_time 和 input_mic_subband对应
 		srv->input_ref_time[i_ref] = (float*)calloc(srv->frm_len, sizeof(float));
 		srv->input_ref_subband[i_ref] = (xcomplex*)calloc(AEC_SUBBAND_NUM, sizeof(xcomplex));
 	}
@@ -111,6 +117,18 @@ void* dios_ssp_aec_init_api(int mic_num, int ref_num, int frm_len, int delay)
 	{
 		srv->st_subband_ref[i_ref] = dios_ssp_share_subband_init(srv->frm_len);
 	}
+	/**
+	 * band_table是AEC模块中用于存储子带频率对应的通道号的二维数组，
+	 * 其作用是将输入信号分成若干个子带，然后根据每个子带的频率范围进行相应的处理。
+	 * 可以将整个频率范围分成多个子带，这些子带中的频率范围可以根据实际需要来确定，比如可以根据人耳听觉特性等因素来分带。
+	 * 在代码中，band_table中的每一行存储一个子带的起始通道号和结束通道号，这些通道号对应着FFT变换后的幅度谱中的频率位置。
+	 * freq_div_table是用于确定子带频率范围的表格，它是一个1维数组，存储了各个子带的频率上限。
+	 * 在AEC中，根据采样率和FFT长度，可以确定每个通道的频率范围，即频率分辨率。
+	 * 根据这个频率分辨率和freq_div_table中的值，可以轻松地确定子带的频率范围，
+	 * 即第i个子带的频率范围为freq_div_table[i-1]~freq_div_table[i]，其中freq_div_table[0]为0，freq_div_table[N]为采样率的一半。
+	 * 在代码中，根据freq_div_table和FFT长度计算出每个子带的起始通道号和结束通道号，然后存储在band_table中。
+	 * 其中如果子带分解子带数设为128，那么最终band_table最后一个元素也就是128
+	*/
 
 	srv->band_table = (int**)calloc(ERL_BAND_NUM, sizeof(int*));
 	for (i = 0; i < ERL_BAND_NUM; i++)
