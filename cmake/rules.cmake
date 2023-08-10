@@ -40,6 +40,10 @@ set(HEADER_FILES
     ${PROJECT_SOURCE_DIR}/src_demo/aec/src/
 
 )
+file(GLOB AEC_SRC_LIST
+    ${PROJECT_SOURCE_DIR}/src_demo/aec/src/*.c
+
+)
 
 # 指定需要链接的库的路径，也可以在链接库的命令里写全
 # link_directories(

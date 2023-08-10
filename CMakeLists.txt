@@ -58,8 +58,6 @@ set_target_properties(${LIB_NAME} PROPERTIES OUTPUT_NAME "ssp_lib")
 # 设置目标库被链接时使用静态链接
 SET(CMAKE_EXE_LINKER_FLAGS "-static")
 
-
-###############compile executable###############
 # 指定生成可执行文件的源文件
 add_executable(example ${CMAKE_CURRENT_LIST_DIR}/example.c)
 target_link_libraries(example PUBLIC ${LIB_NAME})
@@ -70,4 +68,13 @@ target_include_directories(example PUBLIC
 )
 if(SET_DEBUG)
   set_target_properties(example PROPERTIES COMPILE_FLAGS -g)
+endif()
+
+###############compile executable###############
+if(CONFIG_AEC_EXE)
+  # LIST(APPEND ${AEC_SRC_LIST})
+  add_executable(aec_2ch ${CMAKE_CURRENT_LIST_DIR}/example.c ${AEC_SRC_LIST})
+  target_include_directories(aec_2ch PUBLIC ${CMAKE_CURRENT_LIST_DIR}/src_demo/aec/src/)
+  target_link_libraries(aec_2ch PUBLIC -lm)
+
 endif()

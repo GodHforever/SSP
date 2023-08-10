@@ -223,6 +223,7 @@
 #include "dios_ssp_tde.h"
 
 const int array_frm_len = 128;
+const int tde_chunk = 256;
 
 int main(int argc, char** argv)
 {
@@ -275,8 +276,8 @@ int main(int argc, char** argv)
     file_len /= 2;
     rewind(fpin[0]);
     fclose(fpin[0]);
-    long frame_num = (file_len - array_frm_len * 128) / array_frm_len;
-    int sample_res = (file_len - array_frm_len * 128) % array_frm_len;
+    long frame_num = (file_len - array_frm_len * tde_chunk) / array_frm_len;
+    int sample_res = (file_len - array_frm_len * tde_chunk) % array_frm_len;
     printf("file_len:%d framenum: %ld and %d samples.\r\n", file_len, frame_num, sample_res);
     // fpref = fopen(argv[2], "rb");
     // fpout = fopen(argv[3], "wb");
@@ -304,12 +305,12 @@ int main(int argc, char** argv)
     // N = 128 也就是128帧，每帧128个采样点 
     // TDE Begin
     int delay = 0;
-    short* ptr_input_for_tde = (short*)calloc(array_frm_len * 128, sizeof(short));
-    short* ptr_ref_for_tde = (short*)calloc(array_frm_len * 128, sizeof(short));
-    fread(ptr_input_for_tde, sizeof(short), array_frm_len * 128, fpin[0]);
-    fread(ptr_ref_for_tde, sizeof(short), array_frm_len * 128, fpref);
-    delay = dios_ssp_tde(ptr_input_for_tde, ptr_ref_for_tde, array_frm_len * 128);
-    fread(ptr_input_for_tde, sizeof(short), array_frm_len * 128, fpin[1]);  // 仅用于同步
+    short* ptr_input_for_tde = (short*)calloc(array_frm_len * tde_chunk, sizeof(short));
+    short* ptr_ref_for_tde = (short*)calloc(array_frm_len * tde_chunk, sizeof(short));
+    fread(ptr_input_for_tde, sizeof(short), array_frm_len * tde_chunk, fpin[0]);
+    fread(ptr_ref_for_tde, sizeof(short), array_frm_len * tde_chunk, fpref);
+    delay = dios_ssp_tde(ptr_input_for_tde, ptr_ref_for_tde, array_frm_len * tde_chunk);
+    fread(ptr_input_for_tde, sizeof(short), array_frm_len * tde_chunk, fpin[1]);  // 仅用于同步
 
     // TDE End
     printf("time delay is %d\n", delay);
